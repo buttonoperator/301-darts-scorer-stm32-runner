@@ -301,18 +301,18 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
   <p class="lede">An STM32F103C8T6 Blue Pill scores 301 or 501 for one to four players. Two HT16K33
   backpacks show the scores, an LCD1602 behind a 74HCT541 buffer shows names and status, a 4&times;4
   keypad takes input, and a PAM8403 amplifier plays the callouts.</p>
-  <p class="lede">This page is the bring-up sequence. It walks 30 steps in ten stages, one subsystem at a
+  <p class="lede">This page is the bring-up sequence. It walks 28 steps in nine stages, one subsystem at a
   time, and lights the exact pins for the step in progress. Each stage ends in a measured pass
   criterion before the next subsystem is connected.</p>
   <div class="specs">
-    <span>STM32F103C8T6</span><span>72 MHz</span><span>3.3 V logic</span><span>10 stages</span>
-    <span>30 steps</span><span>pin map v1</span><span>bench or USB power</span><span>firmware included</span>
+    <span>STM32F103C8T6</span><span>72 MHz</span><span>3.3 V logic</span><span>9 stages</span>
+    <span>28 steps</span><span>pin map v1</span><span>USB power</span><span>firmware included</span>
   </div>
 </header>
 
 <div class="top">
   <div class="topline">
-    <span class="count" id="count">Step 1 of 30</span>
+    <span class="count" id="count">Step 1 of 28</span>
     <span class="phase" id="phase"></span>
     <span class="pct" id="pct">0% done</span>
   </div>
@@ -390,7 +390,7 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
     <div id="psys" hidden>
       <div class="frame" tabindex="0" aria-label="System diagram, scrollable">
         <svg id="sys" class="step" viewBox="0 0 1240 770" xmlns="http://www.w3.org/2000/svg" role="img"
-             aria-label="System diagram: bench supply and ST-Link feed the Blue Pill, which drives two I2C displays, the LCD through a 74HCT541, the keypad, buttons, brightness pot, RGB LED, buzzer and the audio chain"></svg>
+             aria-label="System diagram: USB power and ST-Link feed the Blue Pill, which drives two I2C displays, the LCD through a 74HCT541, the keypad, buttons, brightness pot, RGB LED, buzzer and the audio chain"></svg>
       </div>
     </div>
   </div>
@@ -445,7 +445,7 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
           <tr><td class="m">SYS</td><td>Debug = Serial Wire. Never set to No Debug. This setting also releases PA15, PB3 and PB4 for the keypad.</td></tr>
           <tr><td class="m">RCC</td><td>HSE crystal, 8 MHz. PLL source HSE, PLLMul &times;9, SYSCLK 72 MHz. APB1 prescaler /2 (36 MHz, timers 72 MHz). APB2 72 MHz.</td></tr>
           <tr><td class="m">I2C1</td><td>PB6 SCL, PB7 SDA, standard mode 100 kHz.</td></tr>
-          <tr><td class="m">ADC1</td><td>IN0 (PA0) and IN1 (PA1). ADC prescaler /6, which gives 12 MHz. One conversion, scan mode off. The driver selects the channel per read.</td></tr>
+          <tr><td class="m">ADC1</td><td>IN0 (PA0). ADC prescaler /6, which gives 12 MHz. One conversion, scan mode off. The driver selects the channel per read.</td></tr>
           <tr><td class="m">TIM3</td><td>CH1 PWM Generation on PA6, buzzer. Prescaler 71, which gives a 1 MHz tick. The driver sets the period per tone.</td></tr>
           <tr><td class="m">TIM4</td><td>CH3 PWM Generation on PB8, speaker. Prescaler 0. The driver sets the period to 1124 for a 64 kHz carrier. Enable the TIM4 global interrupt in NVIC.</td></tr>
           <tr><td class="m">USART2</td><td>PA2, PA3. Configured when the ESP32 link is added.</td></tr>
@@ -469,16 +469,17 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
         marking on the part before seating it.</p>
       </div>
       <div class="why warnb">
-        <h4>One 3.3 V source at a time</h4>
-        <p>The Blue Pill 3V3 pin, the ST-Link 3.3 V pin and the USB port can each power the board. Connect one.
-        On bench power, the ST-Link carries SWDIO, SWCLK and GND only, and USB stays unplugged.</p>
+        <h4>Two 3.3 V regulators, never joined</h4>
+        <p>The regulator on the Blue Pill supplies the MCU from USB. The AMS1117 module supplies the 3.3 V
+        rail for the displays from the 5 V rail. The Blue Pill 3V3 pin stays off the 3.3 V rail. It feeds
+        the brightness pot only. The ST-Link carries SWDIO, SWCLK and GND, and its 3.3 V pin stays open.</p>
       </div>
       <div class="why warnb">
         <h4>USB power limits</h4>
-        <p>On USB power the 5 V rail is VBUS, and the 3.3 V rail comes from the small regulator on the
-        Blue Pill. A computer USB 2.0 port supplies 500 mA. VBUS can fall toward 4.4 V at the board
-        under load through a thin cable. If the 3.3 V rail sags with both displays lit, feed the
-        displays from a separate AMS1117 on the 5 V rail and do not join the two 3.3 V outputs.</p>
+        <p>The 5 V rail is VBUS from the Blue Pill 5V pin through F1, a 1 A resettable fuse. A computer
+        USB 2.0 port supplies 500 mA. Worst-case draw is estimated at 480 to 650 mA, so use a source rated
+        1 A or more. VBUS can fall toward 4.4 V at the board through a thin cable, and the AMS1117 needs
+        about 1.1 V of headroom. Measure both rails with the displays at full segments.</p>
       </div>
       <div class="why">
         <h4>I2C address collision</h4>
@@ -502,12 +503,6 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
         <p>Starting values. The coupling capacitor after the filter must be 0.1 to 1 &micro;F. A capacitor
         marked 102 is 1000 pF, which passes almost no audio.</p>
       </div>
-      <div class="why warnb">
-        <h4>Buck-only regulators fail on a sagging battery</h4>
-        <p>Four AA cells start near 6 V and sag toward 4 V. A buck converter cannot output more than its
-        input, so the 5 V rail needs a buck-boost stage. This applies when the battery chain replaces the
-        bench supply.</p>
-      </div>
     </div>
   </details>
 
@@ -519,16 +514,15 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
         <tbody>
           <tr><td>MCU and programming</td><td>Blue Pill (STM32F103C8T6), ST-Link V2</td><td class="m">3.3 V</td></tr>
           <tr><td>Score displays</td><td>2&times; Adafruit 1.2 in 4-digit 7-segment, HT16K33 I2C backpack</td><td class="m">3.3 V</td></tr>
-          <tr><td>Text display</td><td>LCD1602, 74HCT541 (DIP-20), contrast pot</td><td class="m">5 V</td></tr>
+          <tr><td>Text display</td><td>LCD1602, 74HCT541 (DIP-20), 10 k&Omega; contrast pot</td><td class="m">5 V</td></tr>
           <tr><td>Input</td><td>4&times;4 matrix keypad, 2 tactile buttons, 10 k&Omega; linear pot</td><td class="m">3.3 V</td></tr>
-          <tr><td>Keypad lighting</td><td>4 LEDs (D2 to D5), 4 series resistors (R7 to R10)</td><td class="m">5 V</td></tr>
+          <tr><td>Keypad lighting</td><td>4 white LEDs (D2 to D5), 4 &times; 220 &Omega; (R7 to R10)</td><td class="m">5 V</td></tr>
           <tr><td>Status</td><td>RGB LED, common cathode, 3 resistors. Passive piezo buzzer.</td><td class="m">3.3 V</td></tr>
           <tr><td>Audio</td><td>PAM8403 module, 8 &Omega; speaker, 1 k&Omega;, 0.1 &micro;F, coupling capacitor, 2&times; 10 k&Omega;</td><td class="m">5 V</td></tr>
-          <tr><td>Bench power</td><td>Breadboard supply module with 5 V and 3.3 V outputs, 9 V battery. Alternative: USB source, 1 A or more.</td><td class="m">both</td></tr>
-          <tr><td>Battery power, deferred</td><td>4&times;AA holder, 1N5819, Pololu S9V11-series 5 V buck-boost, AMS1117-3.3</td><td class="m">both</td></tr>
+          <tr><td>USB power</td><td>USB source rated 1 A or more, F1 1 A resettable fuse, AMS1117-3.3 module (3-pin header)</td><td class="m">both</td></tr>
         </tbody>
       </table></div>
-      <p>Prices and order status are in Purchase Order v5.1. Designators on this page (R1 to R10, C1, C2,
+      <p>Prices and order status are in Purchase Order v5.1. The 1 A resettable fuse is not on that order. Designators on this page (R1 to R10, C1, C2,
       D1 to D5, RV1, RV2, SW1, SW2) are local to this page until a schematic exists.</p>
     </div>
   </details>
@@ -537,7 +531,7 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
     <summary>If something is wrong</summary>
     <div class="body2">
       <h3>ST-Link cannot connect</h3>
-      <p>Check SWDIO and SWCLK are not swapped, GND is common, and the board has exactly one 3.3 V source.
+      <p>Check SWDIO and SWCLK are not swapped, GND is common, and the ST-Link 3.3 V pin is open.
       If firmware set SYS Debug to No Debug, hold reset while connecting, then reflash with Serial Wire enabled.</p>
       <h3>I2C scan finds nothing</h3>
       <p>Check SDA is on PB7 and SCL on PB6, not reversed. Measure both lines idle: each must sit near 3.3 V.
@@ -555,7 +549,7 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
       <p>Row and column leads are assigned to the wrong connector pins. Map the keypad connector with a
       continuity meter before trusting any published pin order.</p>
       <h3>Green or blue LED channel is dim</h3>
-      <p>Their forward voltage is close to the 3.3 V rail. Reduce those two resistors to 100 to 150 &Omega;. Leave red unchanged.</p>
+      <p>Their forward voltage is close to the 3.3 V pin drive level. Reduce those two resistors to 100 to 150 &Omega;. Leave red unchanged.</p>
       <h3>Audio is silent or very faint</h3>
       <p>Check the coupling capacitor value, then confirm PWM on PB8 with a meter on AC volts. Confirm the
       amplifier has 5 V and that no speaker terminal touches ground.</p>
@@ -570,15 +564,14 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
       <div class="tbl"><table class="t">
         <thead><tr><th>Stage</th><th>Check</th><th>Pass</th></tr></thead>
         <tbody>
-          <tr><td>Bench power</td><td>Both rails, unloaded then loaded</td><td class="m">4.75&ndash;5.25 V, 3.14&ndash;3.47 V</td></tr>
+          <tr><td>USB power</td><td>Blue Pill pins, then both rails</td><td class="m">4.75&ndash;5.25 V, 3.14&ndash;3.47 V</td></tr>
           <tr><td>MCU core</td><td>Flash, PC13 blink, breakpoint, uwTick watch</td><td class="m">1 Hz, halts at main</td></tr>
-          <tr><td>I2C displays</td><td>Bus scan, then full-segment test</td><td class="m">0x70 and 0x71, all segments</td></tr>
+          <tr><td>I2C displays</td><td>Bus scan, full-segment test, display current</td><td class="m">0x70 and 0x71, all segments, current recorded</td></tr>
           <tr><td>LCD</td><td>Text across several power cycles</td><td class="m">stable, no garbage</td></tr>
           <tr><td>Keypad</td><td>All 16 keys, one event per press</td><td class="m">16 of 16, 300 ms debounce</td></tr>
           <tr><td>Buttons and pot</td><td>Active-low read, ADC sweep</td><td class="m">0 to 4095, monotonic</td></tr>
           <tr><td>Status</td><td>Each LED channel, three buzzer tones</td><td class="m">3 colors, 3 tones</td></tr>
           <tr><td>Audio</td><td>Tone playback, 5 V rail under load</td><td class="m">clean tone, rail &ge; 4.75 V</td></tr>
-          <tr><td>Battery power</td><td>Three checkpoints before any load</td><td class="m">deferred</td></tr>
         </tbody>
       </table></div>
     </div>
@@ -593,13 +586,13 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
           <tr><td>I2C scan result</td><td>The scan for 0x70 was in debug at the last recorded session (2026-10-11). No pass is on record.</td></tr>
           <tr><td>Blue Pill header order</td><td>The pin map drawing uses the common Blue Pill header order. Confirm it against the silkscreen on the board in hand.</td></tr>
           <tr><td>Keypad connector order</td><td>Row and column lead positions are not confirmed. Map them with a continuity meter.</td></tr>
-          <tr><td>Regulator part number</td><td>The project brief lists the Pololu S9V11F5. A later bench session recorded a different S9V11 variant for the part in hand. Read the part marking before the battery stage.</td></tr>
-          <tr><td>Reverse-polarity diode current</td><td>Estimated battery current near end of discharge may exceed the 1 A rating of the 1N5819. The estimate is unmeasured. Measure before finalizing.</td></tr>
-          <tr><td>Battery-sense divider</td><td>The ADC input must stay at or below 3.3 V. PA1 stays disconnected on the 9 V bench supply.</td></tr>
+          <tr><td>Display current and feed</td><td>Estimated at about 200 mA per display at full segments from the 3.3 V rail. Unmeasured. If the backpack has a separate IO logic pin beside its + pin, feeding + from the 5 V rail roughly halves the current. Read the silkscreen and measure before deciding.</td></tr>
+          <tr><td>AMS1117 module pin order</td><td>The module has a 3-pin header. The order of IN, GND and OUT is not confirmed. Read the silkscreen.</td></tr>
+          <tr><td>Fuse F1</td><td>1 A resettable fuse. Not yet in hand. A wire link stands in until it is fitted, before the integration stage.</td></tr>
           <tr><td>Firmware</td><td>The drivers on this page are not yet built with ARM GCC or run on hardware. Each is verified when its step passes.</td></tr>
           <tr><td>Keypad lighting control</td><td>The LEDs are always on. Firmware control needs a pin, and none is free on the side headers. PC13 through a 10 k&Omega; base resistor and an NPN low-side switch is a candidate. It is not designed in.</td></tr>
-          <tr><td>Keypad LED color</td><td>Resistor values depend on the forward voltage of the LEDs in hand. Confirm the color, then choose from the two ranges in the step.</td></tr>
-          <tr><td>Onboard 3.3 V regulator</td><td>Its rating on the board in hand is not confirmed. Read the part marking before relying on USB power for the displays.</td></tr>
+          <tr><td>LCD controller</td><td>The backlight is verified (2026-11-14: 101 &Omega; onboard, 2.25 V across it, about 22 mA). The controller is not. Run the contrast check for 16 solid blocks.</td></tr>
+          <tr><td>USB source</td><td>Total current under full load is unmeasured. An inline USB meter reads it directly.</td></tr>
           <tr><td>Computer opponent</td><td>Difficulty design is not scoped. It does not block hardware bring-up.</td></tr>
         </tbody>
       </table></div>
@@ -616,33 +609,27 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
 <script>
 /* ------------------------------------------------------------------ data */
 var STEPS = [
- /* 0 */ {g:"Bench power", t:"Measure the bench supply unloaded", w:"Meter on DC volts",
-  d:"Power the breadboard supply module from the 9 V battery with nothing else connected. Measure the 5 V output and the 3.3 V output against the module ground.",
-  y:"Every later fault is easier to isolate when the rails are known good first. A supply that is out of tolerance unloaded will be worse under load.",
-  P:["PS.*"],
-  fk:"Check", f:"5 V rail reads 4.75 to 5.25 V. 3.3 V rail reads 3.14 to 3.47 V. Enter both readings in the rail check panel. Power down."},
- /* 1 */ {g:"Bench power", t:"Build the ground net and power the Blue Pill", w:"2 jumpers",
-  d:"Tie the supply ground to both breadboard ground rails. Feed the Blue Pill from the 3.3 V rail through its 3V3 pin. Leave USB unplugged.",
-  W:[["Bench supply GND","Blue Pill GND"],["Bench supply 3V3","Blue Pill 3V3"]],
-  P:["PS.GND","PS.3V3","BP.GNDa","BP.3V3a"],
-  fk:"Watch", fw:1, f:"One 3.3 V source only. Do not connect the ST-Link 3.3 V pin or USB while the bench supply powers the board. Many Blue Pills tie the 5V pin directly to USB VBUS."},
- /* 2 */ {g:"Bench power", t:"Measure the rails loaded", w:"Meter on DC volts",
-  d:"Power up with only the Blue Pill connected. Measure 3.3 V at the Blue Pill 3V3 pin against its GND pin. Confirm the BOOT0 and BOOT1 jumpers are both at 0.",
-  P:["BP.3V3a","BP.GNDa"],
-  fk:"Check", f:"3.14 to 3.47 V at the board. The Blue Pill power LED is lit. Power down before every rewire from this step on."},
-
- {g:"Bench power", t:"Alternative: power from USB", w:"Optional, replaces the bench supply", op:1,
-  d:"A USB source on the Blue Pill connector can power the whole prototype. VBUS appears on the Blue Pill 5V pin and feeds the 5 V rail. The onboard regulator supplies the 3.3 V rail through the 3V3 pin. Disconnect both bench supply outputs first and keep the grounds common. Skip this step when the bench supply stays in use.",
-  y:"One cable replaces the 9 V battery module, and the same connector later carries the virtual COM port. The cost is a small onboard 3.3 V regulator and a current limit set by the USB source.",
-  W:[["Blue Pill 5V pin (VBUS)","5 V rail"],["Blue Pill 3V3 pin","3.3 V rail"],["Blue Pill GND","GND rail"]],
+ /* 0 */ {g:"USB power", t:"Measure the USB supply at the Blue Pill", w:"Meter on DC volts",
+  d:"Plug the USB source into the Blue Pill with nothing else connected. Measure the 5V pin and the 3V3 pin against a GND pin.",
+  y:"Every later fault is easier to isolate when the supply is known good first. A source that is out of tolerance unloaded will be worse under load.",
   P:["BP.5V","BP.3V3a","BP.GNDa"],
-  fk:"Watch", fw:1, f:"Use a source rated 1 A or more once audio is connected. A computer USB 2.0 port is limited to 500 mA. The onboard 3.3 V regulator is rated 150 to 300 mA depending on the board, so measure the 3.3 V rail with both displays at full segments. Many boards have no fuse between VBUS and the 5V pin."},
+  fk:"Check", f:"The 5V pin reads 4.75 to 5.25 V. The 3V3 pin reads 3.14 to 3.47 V. Unplug USB."},
+ /* 1 */ {g:"USB power", t:"Build the 5 V rail and the 3.3 V regulator", w:"F1, AMS1117 module, 6 connections",
+  d:"The Blue Pill 5V pin feeds the 5 V rail through F1, a 1 A resettable fuse. The AMS1117-3.3 module takes the 5 V rail and supplies the 3.3 V rail. The Blue Pill 3V3 pin does not connect to the 3.3 V rail.",
+  y:"The regulator on the Blue Pill is rated 150 to 300 mA depending on the board, which is too small for both displays. The AMS1117 carries the display load and the onboard regulator carries the MCU.",
+  W:[["Blue Pill 5V pin (VBUS)","F1 pin 1"],["F1 pin 2","5 V rail"],["Blue Pill GND","GND rail, both sides"],["AMS1117 IN","5 V rail"],["AMS1117 GND","GND rail"],["AMS1117 OUT","3.3 V rail"]],
+  P:["BP.5V","BP.GNDa","PWR.*"],
+  fk:"Watch", fw:1, f:"Two regulator outputs are never joined. Keep the Blue Pill 3V3 pin off the 3.3 V rail. Read the pin order on the AMS1117 module silkscreen before wiring. If F1 is not in hand, fit a wire link and add the fuse before the integration stage."},
+ /* 2 */ {g:"USB power", t:"Measure both rails", w:"Meter on DC volts",
+  d:"Plug in USB with only the regulator connected. Measure the 5 V rail and the 3.3 V rail against the GND rail. Confirm the BOOT0 and BOOT1 jumpers are both at 0.",
+  P:["PWR.F1.2","PWR.OUT","BP.GNDa"],
+  fk:"Check", f:"The 5 V rail reads 4.75 to 5.25 V. The 3.3 V rail reads 3.14 to 3.47 V. Enter both readings in the rail check panel. The Blue Pill power LED is lit. Unplug USB before every rewire from this step on."},
 
  /* 3 */ {g:"MCU core", t:"Connect the ST-Link over SWD", w:"3 wires", v:1,
   d:"SWD header at the end of the Blue Pill opposite the USB connector. Read the silkscreen for the header order.",
   W:[["ST-Link SWDIO","Blue Pill SWDIO (PA13)"],["ST-Link SWCLK","Blue Pill SWCLK (PA14)"],["ST-Link GND","Blue Pill GND"]],
   P:["STL.SWDIO","STL.SWCLK","STL.GND","BP.SWDIO","BP.SWCLK","BP.SWGND"],
-  fk:"Watch", fw:1, f:"The ST-Link 3.3 V pin is a regulated output. Leave it open while the bench supply powers the board."},
+  fk:"Watch", fw:1, f:"The ST-Link 3.3 V pin is a regulated output. Leave it open. USB powers the board."},
  /* 4 */ {g:"MCU core", t:"Generate the CubeMX baseline", w:"CubeMX, then CMake", v:1,
   d:"STM32F103C8Tx. RCC with HSE crystal, PLL x9 for 72 MHz. SYS Debug set to Serial Wire. PC13 as GPIO output labelled LED. Toolchain CMake. Build with the Debug preset.",
   y:"Serial Wire keeps SWD alive after the first flash and releases the JTAG pins the keypad needs later. Setting No Debug locks the debugger out.",
@@ -677,101 +664,95 @@ var STEPS = [
   d:"Send each HT16K33 the oscillator-on command 0x21, the display-on command 0x81, and a brightness command in the range 0xE0 to 0xEF. Then write 0xFF to every display RAM position.",
   P:["DS1.*","DS2.*"],
   fk:"Check", f:"Every segment, the colon and the decimal points light on both displays. Then show 301 on each and confirm the digit order."},
+ /* 11 */ {g:"I2C displays", t:"Measure display current", w:"Meter on DC amps, in series",
+  d:"Power down. Move the red meter lead to the current jack. Remove the wire from the 3.3 V rail to DS1 VIN and put the meter in its place, one probe on the rail and one on VIN. Run the full-segment test at brightness 0xEF and record the reading. Repeat with 301 showing.",
+  y:"The displays are the largest load on the board. The estimate is about 200 mA per display at full segments from the 3.3 V rail. The measured value sets the USB source rating and decides whether the displays move to the 5 V rail.",
+  P:["DS1.VIN","PWR.OUT"],
+  fk:"Watch", fw:1, f:"Current is measured in series. A meter in current mode across a rail is a short circuit through the meter. Return the lead to the voltage jack afterwards."},
 
- /* 11 */ {g:"LCD", t:"Seat and power the 74HCT541", w:"6 connections, 5 V rail",
+ /* 12 */ {g:"LCD", t:"Seat and power the 74HCT541", w:"6 connections, 5 V rail",
   d:"DIP-20 across the breadboard channel. Both output enables go to ground, which enables the outputs permanently. The two unused inputs are grounded so they cannot float.",
   W:[["U2 pin 20 (VCC)","5 V rail"],["U2 pin 10 (GND)","GND rail"],["U2 pin 1 (OE1)","GND rail"],["U2 pin 19 (OE2)","GND rail"],["U2 pin 8 (A7)","GND rail"],["U2 pin 9 (A8)","GND rail"]],
   P:["U2.1","U2.8","U2.9","U2.10","U2.19","U2.20"],
   fk:"Check", f:"The part marking reads HCT. Powered, 5 V across pins 20 and 10. Power down."},
- /* 12 */ {g:"LCD", t:"MCU into the buffer inputs", w:"6 wires, 3.3 V logic",
+ /* 13 */ {g:"LCD", t:"MCU into the buffer inputs", w:"6 wires, 3.3 V logic",
   d:"Six lines from port B into inputs A1 to A6, in order.",
   W:[["Blue Pill PB10 (RS)","U2 pin 2 (A1)"],["Blue Pill PB11 (E)","U2 pin 3 (A2)"],["Blue Pill PB12 (D4)","U2 pin 4 (A3)"],["Blue Pill PB13 (D5)","U2 pin 5 (A4)"],["Blue Pill PB14 (D6)","U2 pin 6 (A5)"],["Blue Pill PB15 (D7)","U2 pin 7 (A6)"]],
   P:["BP.PB10","BP.PB11","BP.PB12","BP.PB13","BP.PB14","BP.PB15","U2.2","U2.3","U2.4","U2.5","U2.6","U2.7"]},
- /* 13 */ {g:"LCD", t:"Buffer outputs into the LCD", w:"6 wires, 5 V logic",
+ /* 14 */ {g:"LCD", t:"Buffer outputs into the LCD", w:"6 wires, 5 V logic",
   d:"Outputs Y1 to Y6 sit on the opposite side of the package and count down from pin 18.",
   y:"The buffer is one-directional. That is acceptable because RW is tied low and the MCU never reads from the LCD.",
   W:[["U2 pin 18 (Y1)","LCD pin 4 (RS)"],["U2 pin 17 (Y2)","LCD pin 6 (E)"],["U2 pin 16 (Y3)","LCD pin 11 (D4)"],["U2 pin 15 (Y4)","LCD pin 12 (D5)"],["U2 pin 14 (Y5)","LCD pin 13 (D6)"],["U2 pin 13 (Y6)","LCD pin 14 (D7)"]],
   P:["U2.18","U2.17","U2.16","U2.15","U2.14","U2.13","LCD.4","LCD.6","LCD.11","LCD.12","LCD.13","LCD.14"],
   fk:"Watch", fw:1, f:"Input A1 is pin 2 and its output Y1 is pin 18. The pairs run in opposite directions down the two sides."},
- /* 14 */ {g:"LCD", t:"LCD power, contrast and backlight", w:"7 connections",
-  d:"VDD is the true 5 V rail. RW goes straight to ground and does not pass through the buffer. D0 to D3 stay open in 4-bit mode.",
-  W:[["LCD pin 1 (VSS)","GND rail"],["LCD pin 2 (VDD)","5 V rail"],["LCD pin 3 (V0)","RV2 wiper"],["RV2 ends","5 V rail and GND rail"],["LCD pin 5 (RW)","GND rail"],["LCD pin 15 (A)","5 V rail through the backlight resistor"],["LCD pin 16 (K)","GND rail"]],
+ /* 15 */ {g:"LCD", t:"LCD power, contrast and backlight", w:"7 connections",
+  d:"VDD is the true 5 V rail. RW goes straight to ground and does not pass through the buffer. D0 to D3 stay open in 4-bit mode. The module carries its own 101 Ω backlight resistor, so pin 15 goes straight to the 5 V rail. Measured 2026-11-14: 2.25 V across that resistor, about 22 mA.",
+  W:[["LCD pin 1 (VSS)","GND rail"],["LCD pin 2 (VDD)","5 V rail"],["LCD pin 3 (V0)","RV2 wiper"],["RV2 ends","5 V rail and GND rail"],["LCD pin 5 (RW)","GND rail"],["LCD pin 15 (A)","5 V rail"],["LCD pin 16 (K)","GND rail"]],
   P:["LCD.1","LCD.2","LCD.3","LCD.5","LCD.15","LCD.16","RV2.*"],
-  fk:"Check", f:"Power up with no LCD firmware. Turn RV2 until row 1 shows 16 solid blocks. A blank screen at this point is a contrast or power fault, not a data fault."},
- /* 15 */ {g:"LCD", t:"Initialize in 4-bit mode and print", c:["steps/lcd_test.c", "lcd1602.h", "lcd1602.c", "board.h", "board.c"], w:"Firmware",
+  fk:"Check", f:"Power up with no LCD firmware. Turn RV2 until row 1 shows 16 solid blocks. A blank screen at this point is a contrast or power fault, not a data fault. Reversing pins 1 and 2 can destroy the controller, so check polarity before power."},
+ /* 16 */ {g:"LCD", t:"Initialize in 4-bit mode and print", c:["steps/lcd_test.c", "lcd1602.h", "lcd1602.c", "board.h", "board.c"], w:"Firmware",
   d:"Configure PB10 to PB15 as push-pull outputs, low speed. Run the HD44780 4-bit initialization sequence, then print a fixed string on both rows.",
   P:["LCD.4","LCD.6","LCD.11","LCD.12","LCD.13","LCD.14"],
   fk:"Check", f:"Text is correct and stable across five power cycles, with no stray characters."},
 
- /* 16 */ {g:"Keypad", t:"Wire the keypad matrix", w:"8 wires",
+ /* 17 */ {g:"Keypad", t:"Wire the keypad matrix", w:"8 wires",
   d:"Rows are outputs that idle high. Columns are inputs with internal pull-ups. Identify the row and column leads on the keypad connector with a continuity meter before wiring.",
   W:[["KP R1","Blue Pill PA4"],["KP R2","Blue Pill PA5"],["KP R3","Blue Pill PA7"],["KP R4","Blue Pill PA15"],["KP C1","Blue Pill PB0"],["KP C2","Blue Pill PB1"],["KP C3","Blue Pill PB3"],["KP C4","Blue Pill PB4"]],
   P:["KP.*","BP.PA4","BP.PA5","BP.PA7","BP.PA15","BP.PB0","BP.PB1","BP.PB3","BP.PB4"],
   fk:"Watch", fw:1, f:"PA15, PB3 and PB4 are JTAG pins at reset. They work as GPIO only with SYS Debug set to Serial Wire."},
- /* 17 */ {g:"Keypad", t:"Scan and decode all 16 keys", c:["steps/keypad_test.c", "keypad.h", "keypad.c", "board.h", "board.c"], w:"Firmware",
+ /* 18 */ {g:"Keypad", t:"Scan and decode all 16 keys", c:["steps/keypad_test.c", "keypad.h", "keypad.c", "board.h", "board.c"], w:"Firmware",
   d:"Drive one row low at a time and read the four columns. A pressed key reads low on its column. Apply the 300 ms debounce from the requirements. Show the decoded key on the LCD.",
   P:["KP.*"],
   fk:"Check", f:"All 16 keys decode to the correct legend. Each press produces one event."},
 
- {g:"Keypad", t:"Add keypad lighting", w:"4 LEDs, 4 resistors, 5 V rail",
-  d:"Four LEDs placed around the keypad, each with its own series resistor between the 5 V rail and its anode. Cathodes go to ground. The LEDs are lit whenever the 5 V rail is up. No MCU pin is used.",
-  y:"Every GPIO on the side headers is already assigned, so the lighting is hardware only. Running it from the 5 V rail keeps about 40 mA off the Blue Pill 3.3 V regulator.",
+ /* 19 */ {g:"Keypad", t:"Add keypad lighting", w:"4 white LEDs, 4 × 220 Ω, 5 V rail",
+  d:"Four white LEDs placed around the keypad, each with its own 220 Ω series resistor between the 5 V rail and its anode. Cathodes go to ground. The LEDs are lit whenever the 5 V rail is up. No MCU pin is used.",
+  y:"Every GPIO on the side headers is already assigned, so the lighting is hardware only. Running it from the 5 V rail keeps about 35 mA off the 3.3 V regulators.",
   W:[["5 V rail","R7, R8, R9, R10, one per LED"],["Each resistor, other end","LED anode (long lead)"],["Each LED cathode","GND rail"]],
   P:["KL.*"],
-  fk:"Check", f:"Resistor value by LED color: 330 Ω for red, yellow or green, 180 to 220 Ω for white or blue. Either gives about 9 to 11 mA per LED. All four light, and the 5 V rail stays in tolerance."},
+  fk:"Check", f:"Each LED draws about 8 to 9 mA through 220 Ω. All four light, and the 5 V rail stays in tolerance."},
 
- /* 18 */ {g:"Buttons and pot", t:"Wire the Undo and New Game buttons", c:["steps/inputs_test.c", "inputs.h", "inputs.c"], w:"4 connections",
+ /* 20 */ {g:"Buttons and pot", t:"Wire the Undo and New Game buttons", c:["steps/inputs_test.c", "inputs.h", "inputs.c"], w:"4 connections",
   d:"Each button switches its pin to ground. The internal pull-up holds the pin high when the button is open.",
   W:[["SW1 (Undo), one side","Blue Pill PB5"],["SW1, other side","GND rail"],["SW2 (New Game), one side","Blue Pill PB9"],["SW2, other side","GND rail"]],
   P:["SW.*","BP.PB5","BP.PB9"],
   fk:"Check", f:"Each pin reads 1 released and 0 pressed in the debugger."},
- /* 19 */ {g:"Buttons and pot", t:"Wire the brightness pot", c:["steps/inputs_test.c", "inputs.h", "inputs.c"], w:"3 connections, 3.3 V rail",
-  d:"Pot ends to 3.3 V and ground, wiper to PA0. Enable ADC1 channel IN0 with the ADC prescaler at /6.",
-  W:[["RV1 end","3.3 V rail"],["RV1 wiper","Blue Pill PA0"],["RV1 other end","GND rail"]],
-  P:["RV1.*","BP.PA0"],
-  fk:"Watch", fw:1, f:"The pot ends go to the 3.3 V rail, never the 5 V rail. PA0 in analog mode is not 5 V tolerant."},
+ /* 21 */ {g:"Buttons and pot", t:"Wire the brightness pot", c:["steps/inputs_test.c", "inputs.h", "inputs.c"], w:"3 connections, Blue Pill 3V3 pin",
+  d:"Pot ends to the Blue Pill 3V3 pin and ground, wiper to PA0. Enable ADC1 channel IN0 with the ADC prescaler at /6.",
+  W:[["RV1 end","Blue Pill 3V3 pin"],["RV1 wiper","Blue Pill PA0"],["RV1 other end","GND rail"]],
+  P:["RV1.*","BP.PA0","BP.3V3b"],
+  fk:"Watch", fw:1, f:"The pot is fed from the Blue Pill 3V3 pin so the wiper cannot exceed the MCU supply. Never use the 5 V rail. PA0 in analog mode is not 5 V tolerant."},
 
- /* 20 */ {g:"Status", t:"Wire the RGB LED", c:["steps/status_test.c", "status.h", "status.c"], w:"3 resistors, 4 connections",
+ /* 22 */ {g:"Status", t:"Wire the RGB LED", c:["steps/status_test.c", "status.h", "status.c"], w:"3 resistors, 4 connections",
   d:"Common cathode to ground. One series resistor per channel, 220 to 330 \u03A9, between each MCU pin and its anode. Identify the common lead on the part in hand with the meter diode test.",
   W:[["Blue Pill PA8","R1, then red anode"],["Blue Pill PA9","R2, then green anode"],["Blue Pill PA10","R3, then blue anode"],["Common cathode","GND rail"]],
   P:["D1.*","BP.PA8","BP.PA9","BP.PA10"],
   fk:"Check", f:"Each channel lights alone when its pin is driven high. If green or blue is dim, reduce that resistor to 100 to 150 \u03A9."},
- /* 21 */ {g:"Status", t:"Wire the passive buzzer", c:["steps/status_test.c", "status.h", "status.c"], w:"2 connections",
+ /* 23 */ {g:"Status", t:"Wire the passive buzzer", c:["steps/status_test.c", "status.h", "status.c"], w:"2 connections",
   d:"Buzzer positive to PA6, negative to ground. Enable TIM3 channel 1 as PWM with prescaler 71. A passive piezo needs a driven frequency. A DC level produces one click.",
   W:[["BZ1 +","Blue Pill PA6"],["BZ1 −","GND rail"]],
   P:["BZ1.*","BP.PA6"],
   fk:"Check", f:"Three distinct tones play, one each for score, bust and checkout."},
 
- /* 22 */ {g:"Audio", t:"Build the RC low-pass filter", w:"R4 and C1",
+ /* 24 */ {g:"Audio", t:"Build the RC low-pass filter", w:"R4 and C1",
   d:"PB8 drives R4, 1 kΩ. The far end of R4 is the filtered node. C1, 0.1 µF ceramic, runs from that node to ground.",
   y:"The timer output is a PWM carrier. The filter removes the carrier and leaves the audio. The corner frequency is about 1.6 kHz with these values and is tuned by ear.",
   W:[["Blue Pill PB8","R4 pin 1"],["R4 pin 2","C1 pin 1 (filtered node)"],["C1 pin 2","GND rail"]],
   P:["BP.PB8","FLT.R4.1","FLT.R4.2","FLT.C1.1","FLT.C1.2"]},
- /* 23 */ {g:"Audio", t:"Couple into the PAM8403 and connect the speaker", w:"C2, R5, R6, amplifier",
+ /* 25 */ {g:"Audio", t:"Couple into the PAM8403 and connect the speaker", w:"C2, R5, R6, amplifier",
   d:"C2 blocks DC from the filtered node. R5 and R6, 10 kΩ each, split the mono signal to the L and R inputs. The speaker connects across L+ and L−.",
   W:[["Filtered node","C2 pin 1"],["C2 pin 2","R5 pin 1 and R6 pin 1"],["R5 pin 2","PAM8403 L"],["R6 pin 2","PAM8403 R"],["PAM8403 input G","GND rail"],["PAM8403 5V and GND","5 V rail and GND rail"],["PAM8403 L+ and L−","Speaker"]],
   P:["FLT.C2.1","FLT.C2.2","FLT.R5.1","FLT.R5.2","FLT.R6.1","FLT.R6.2","AMP.*"],
   fk:"Watch", fw:1, f:"The outputs are bridge-tied. Neither speaker terminal connects to ground. C2 must be 0.1 to 1 µF. A capacitor marked 102 is far too small."},
- /* 24 */ {g:"Audio", t:"Play a tone and measure the 5 V rail", c:["steps/audio_test.c", "audio.h", "audio.c"], w:"Firmware, meter on the 5 V rail",
+ /* 26 */ {g:"Audio", t:"Play a tone and measure the 5 V rail", c:["steps/audio_test.c", "audio.h", "audio.c"], w:"Firmware, meter on the 5 V rail",
   d:"Enable TIM4 channel 3 as PWM with prescaler 0, and enable the TIM4 global interrupt. The driver runs a 64 kHz carrier and updates the duty at 16 kHz from a sine table. Start at volume 16 and raise it in steps while watching the 5 V rail. Set AUDIO_VOL_MAX below the level where the speaker distorts.",
   P:["BP.PB8","AMP.5V","AMP.L+","AMP.L−"],
   fk:"Check", f:"Clean tone. The 5 V rail stays at or above 4.75 V during playback. Both displays and the LCD show no flicker."},
 
- /* 25 */ {g:"Battery power", t:"Battery sense divider", w:"Deferred", df:1,
-  d:"PA1 reads the battery through a resistor divider. Leave PA1 disconnected on the 9 V bench supply. A 1:1 divider from 9 V puts 4.5 V on the pin.",
-  P:["BP.PA1"],
-  fk:"Watch", fw:1, f:"The ADC input must never exceed 3.3 V. Choose the divider ratio against the highest battery voltage, then measure the divider output before connecting it to PA1."},
- /* 26 */ {g:"Battery power", t:"Replace the bench supply with the battery chain", w:"Deferred, 3 checkpoints", df:1,
-  d:"Four AA cells feed the 1N5819, then the buck-boost regulator for 5 V, then the AMS1117 for 3.3 V. Build it with every load disconnected.",
-  y:"The 3.3 V regulator is fed from the regulated 5 V rail and not from the raw battery, so both rails hold across the whole discharge curve.",
-  W:[["4×AA +","1N5819 anode"],["1N5819 cathode","Buck-boost VIN"],["Buck-boost VOUT","5 V rail and AMS1117 IN"],["AMS1117 OUT","3.3 V rail"],["All grounds","GND rail"]],
-  P:["PWR.*"],
-  fk:"Check", f:"Checkpoint 1: diode cathode reads battery voltage minus about 0.3 to 0.4 V. Checkpoint 2: 5 V rail in tolerance. Checkpoint 3: 3.3 V rail in tolerance. Connect loads only after all three pass."},
-
  /* 27 */ {g:"Integration", t:"Run every subsystem together", w:"All stages passed",
   d:"Power the full prototype. Measure both rails and the total supply current with displays lit, the LCD backlight on and a tone playing. Then port the game logic from darts_scorer_final.ino, keeping application code inside USER CODE blocks or separate source files.",
   P:[],
-  fk:"Check", f:"Both rails stay in tolerance under full load. Commit the milestone with the .ioc file, CMakeLists.txt and source together. PCB work starts only after this step passes."}
+  fk:"Check", f:"Both rails stay in tolerance under full load, and the total current is below the USB source rating. F1 is fitted. Commit the milestone with the .ioc file, CMakeLists.txt and source together. PCB work starts only after this step passes."}
 ];
 
 /* packages. pin: [pad, innerName, net, class, key?] ; class 'nc' = no connection in this build */
@@ -785,12 +766,12 @@ var PK = {
         ["PA15","GPIO out","KEY_R4","key"],["PB3","in, PU","KEY_C3","key"],["PB4","in, PU","KEY_C4","key"],
         ["PB5","in, PU","BTN_UNDO","inp"],["PB6","I2C1_SCL","I2C_SCL","i2c"],["PB7","I2C1_SDA","I2C_SDA","i2c"],
         ["PB8","TIM4_CH3","AUD_PWM","aud"],["PB9","in, PU","BTN_NEW","inp"],
-        ["5V","VBUS","USB only","rsv"],["GND","","GND","gnd","GNDa"],["3V3","","+3V3","p3","3V3a"]],
-     R:[["GND","","GND","gnd","GNDb"],["GND","","GND","gnd","GNDc"],["3V3","","+3V3","p3","3V3b"],["NRST","","open","nc"],
+        ["5V","VBUS","VBUS","p5"],["GND","","GND","gnd","GNDa"],["3V3","","BP_3V3","p3","3V3a"]],
+     R:[["GND","","GND","gnd","GNDb"],["GND","","GND","gnd","GNDc"],["3V3","","BP_3V3","p3","3V3b"],["NRST","","open","nc"],
         ["PB11","GPIO out","LCD_E","lcd"],["PB10","GPIO out","LCD_RS","lcd"],["PB1","in, PU","KEY_C2","key"],["PB0","in, PU","KEY_C1","key"],
         ["PA7","GPIO out","KEY_R3","key"],["PA6","TIM3_CH1","BUZZ","stat"],["PA5","GPIO out","KEY_R2","key"],["PA4","GPIO out","KEY_R1","key"],
         ["PA3","USART2_RX","reserved","rsv"],["PA2","USART2_TX","reserved","rsv"],
-        ["PA1","ADC1_IN1","VBAT_SENSE","inp"],["PA0","ADC1_IN0","POT_BRT","inp"],
+        ["PA1","","spare","nc"],["PA0","ADC1_IN0","POT_BRT","inp"],
         ["PC15","","open","nc"],["PC14","","open","nc"],["PC13","GPIO out","LED","dbg"],["VBAT","","open","nc"]]},
  U2:{ref:"U2", part:"74HCT541, DIP-20", kind:"dual", pw:34, top:"notch",
      note:"Top view, notch up. Inputs on the left, outputs on the right in reverse order.",
@@ -802,7 +783,7 @@ var PK = {
      P:[["1","VSS","GND","gnd"],["2","VDD","+5V","p5"],["3","V0","LCD_V0","lcd"],["4","RS","RS_5V","lcd"],["5","RW","GND","gnd"],["6","E","E_5V","lcd"],
         ["7","D0","open","nc"],["8","D1","open","nc"],["9","D2","open","nc"],["10","D3","open","nc"],
         ["11","D4","D4_5V","lcd"],["12","D5","D5_5V","lcd"],["13","D6","D6_5V","lcd"],["14","D7","D7_5V","lcd"],
-        ["15","A","+5V via R","p5"],["16","K","GND","gnd"]]},
+        ["15","A","+5V","p5"],["16","K","GND","gnd"]]},
  DS1:{ref:"DS1", part:"HT16K33 backpack, 0x70", kind:"row",
      P:[["VIN","power","+3V3","p3"],["GND","ground","GND","gnd"],["SDA","data","I2C_SDA","i2c"],["SCL","clock","I2C_SCL","i2c"]]},
  DS2:{ref:"DS2", part:"HT16K33 backpack, 0x71", kind:"row", note:"A0 jumper bridged.",
@@ -812,12 +793,12 @@ var PK = {
  KP:{ref:"KP", part:"4×4 matrix keypad", kind:"row", note:"Lead order on the connector is not confirmed. Map it with a continuity meter.",
      P:[["R1","row 1","KEY_R1","key"],["R2","row 2","KEY_R2","key"],["R3","row 3","KEY_R3","key"],["R4","row 4","KEY_R4","key"],
         ["C1","col 1","KEY_C1","key"],["C2","col 2","KEY_C2","key"],["C3","col 3","KEY_C3","key"],["C4","col 4","KEY_C4","key"]]},
- KL:{ref:"D2 to D5", part:"Keypad lighting, always on", kind:"row", note:"Four identical branches. Resistor value depends on LED color.",
+ KL:{ref:"D2 to D5", part:"Keypad lighting, always on", kind:"row", note:"Four identical branches. White LEDs, 220 Ω each.",
      P:[["R.1","R7 to R10","+5V","p5"],["R.2","to anode","KL_A","stat"],["A","LED anode","KL_A","stat"],["K","LED cathode","GND","gnd"]]},
  SW:{ref:"SW1, SW2", part:"Undo, New Game", kind:"row",
      P:[["SW1.1","Undo","BTN_UNDO","inp"],["SW1.2","Undo","GND","gnd"],["SW2.1","New Game","BTN_NEW","inp"],["SW2.2","New Game","GND","gnd"]]},
  RV1:{ref:"RV1", part:"Brightness pot, 10 kΩ", kind:"row",
-     P:[["1","end","+3V3","p3"],["W","wiper","POT_BRT","inp"],["3","end","GND","gnd"]]},
+     P:[["1","end","BP_3V3","p3"],["W","wiper","POT_BRT","inp"],["3","end","GND","gnd"]]},
  D1:{ref:"D1", part:"RGB LED, common cathode", kind:"row",
      P:[["R","via R1","LED_R","stat"],["G","via R2","LED_G","stat"],["B","via R3","LED_B","stat"],["K","cathode","GND","gnd"]]},
  BZ1:{ref:"BZ1", part:"Passive piezo buzzer", kind:"row",
@@ -829,20 +810,17 @@ var PK = {
  AMP:{ref:"PAM8403", part:"Class-D amplifier module", kind:"row",
      P:[["5V","supply","+5V","p5"],["GND","supply","GND","gnd"],["L","input","AUD_L","aud"],["G","input gnd","GND","gnd"],["R","input","AUD_R","aud"],
         ["L+","output","SPK+","aud"],["L−","output","SPK−","aud"],["R+","output","open","nc"],["R−","output","open","nc"]]},
- PS:{ref:"Bench supply", part:"Breadboard module, 9 V in", kind:"row",
-     P:[["5V","output","+5V","p5"],["3V3","output","+3V3","p3"],["GND","return","GND","gnd"]]},
  STL:{ref:"ST-Link V2", part:"SWD", kind:"row",
      P:[["SWDIO","data","SWDIO","dbg"],["SWCLK","clock","SWCLK","dbg"],["GND","return","GND","gnd"],["3.3V","output","open","nc"]]},
- PWR:{ref:"Battery chain", part:"Deferred", kind:"row",
-     P:[["BT+","4×AA","VBAT_RAW","p5"],["D.A","1N5819","VBAT_RAW","p5"],["D.K","1N5819","VIN_PROT","p5"],["VIN","buck-boost","VIN_PROT","p5"],
-        ["VOUT","buck-boost","+5V","p5"],["IN","AMS1117","+5V","p5"],["OUT","AMS1117","+3V3","p3"],["GND","all","GND","gnd"]]}
+ PWR:{ref:"USB power", part:"F1, AMS1117-3.3 module", kind:"row", note:"AMS1117 module pin order is not confirmed. Read the silkscreen.",
+     P:[["F1.1","1 A fuse","VBUS","p5"],["F1.2","1 A fuse","+5V","p5"],["IN","AMS1117","+5V","p5"],["GND","AMS1117","GND","gnd"],["OUT","AMS1117","+3V3","p3"]]}
 };
-var PKORDER = ["BP","PS","STL","DS1","DS2","U2","LCD","RV2","KP","KL","SW","RV1","D1","BZ1","FLT","AMP","PWR"];
+var PKORDER = ["BP","PWR","STL","DS1","DS2","U2","LCD","RV2","KP","KL","SW","RV1","D1","BZ1","FLT","AMP"];
 
 /* pin table: [pin, function, mode, config, verifying step index or null, alwaysVerified] */
 var PTAB = [
  ["PA0","Brightness pot wiper","ADC1_IN0","Analog",21],
- ["PA1","Battery sense","ADC1_IN1","Analog, divider required",27],
+ ["PA1","Spare","None","Unused",null],
  ["PA2","ESP link TX (reserved)","USART2_TX","Reserved",null],
  ["PA3","ESP link RX (reserved)","USART2_RX","Reserved",null],
  ["PA4","Keypad row 1","GPIO_Output","Push-pull, idle high",18],
@@ -852,16 +830,16 @@ var PTAB = [
  ["PA8","RGB LED red","GPIO_Output","May move to TIM1_CH1",22],
  ["PA9","RGB LED green","GPIO_Output","May move to TIM1_CH2",22],
  ["PA10","RGB LED blue","GPIO_Output","May move to TIM1_CH3",22],
- ["PA13","SWDIO","SYS_JTMS-SWDIO","Debug = Serial Wire",6],
- ["PA14","SWCLK","SYS_JTCK-SWCLK","Debug = Serial Wire",6],
+ ["PA13","SWDIO","SYS_JTMS-SWDIO","Debug = Serial Wire",5],
+ ["PA14","SWCLK","SYS_JTCK-SWCLK","Debug = Serial Wire",5],
  ["PA15","Keypad row 4","GPIO_Output","Requires JTAG released",18],
  ["PB0","Keypad column 1","GPIO_Input","Pull-up",18],
  ["PB1","Keypad column 2","GPIO_Input","Pull-up",18],
  ["PB3","Keypad column 3","GPIO_Input","Pull-up, requires JTAG released",18],
  ["PB4","Keypad column 4","GPIO_Input","Pull-up, requires JTAG released",18],
  ["PB5","Undo button","GPIO_Input","Pull-up, active low",20],
- ["PB6","HT16K33 SCL","I2C1_SCL","Open-drain, 100 kHz",9],
- ["PB7","HT16K33 SDA","I2C1_SDA","Open-drain, 100 kHz",9],
+ ["PB6","HT16K33 SCL","I2C1_SCL","Open-drain, 100 kHz",8],
+ ["PB7","HT16K33 SDA","I2C1_SDA","Open-drain, 100 kHz",8],
  ["PB8","Speaker PWM","TIM4_CH3","PWM, carrier set in the audio stage",26],
  ["PB9","New Game button","GPIO_Input","Pull-up, active low",20],
  ["PB10","LCD RS, via 74HCT541","GPIO_Output","Push-pull, low speed",16],
@@ -870,7 +848,7 @@ var PTAB = [
  ["PB13","LCD D5, via 74HCT541","GPIO_Output","Push-pull, low speed",16],
  ["PB14","LCD D6, via 74HCT541","GPIO_Output","Push-pull, low speed",16],
  ["PB15","LCD D7, via 74HCT541","GPIO_Output","Push-pull, low speed",16],
- ["PC13","Onboard LED","GPIO_Output","Active low",6]
+ ["PC13","Onboard LED","GPIO_Output","Active low",5]
 ];
 
 var LEGEND = [["p5","5 V"],["p3","3.3 V"],["gnd","ground"],["i2c","I2C"],["lcd","LCD"],["key","keypad"],
@@ -878,9 +856,9 @@ var LEGEND = [["p5","5 V"],["p3","3.3 V"],["gnd","ground"],["i2c","I2C"],["lcd",
 
 /* system diagram geometry */
 var SBLK = [
- {id:"PS", x:30,y:70,w:230,h:100,t:"Bench supply",s:["9 V battery module,","or USB through the Blue Pill"],g:["Bench power"]},
+ {id:"PS", x:30,y:70,w:230,h:100,t:"USB power",s:["USB source, 1 A or more,","on the Blue Pill connector"],g:["USB power"]},
  {id:"STL",x:30,y:220,w:230,h:80,t:"ST-Link V2",s:["flash and debug"],g:["MCU core"]},
- {id:"BAT",x:30,y:350,w:230,h:150,t:"Battery chain",s:["deferred","4×AA, 1N5819,","buck-boost 5 V,","AMS1117 3.3 V"],dash:1,g:["Battery power"]},
+ {id:"BAT",x:30,y:350,w:230,h:150,t:"Rails",s:["F1, 1 A fuse, 5 V rail","AMS1117 module,","3.3 V rail for the displays"],g:["USB power"]},
  {id:"ESP",x:30,y:580,w:230,h:80,t:"ESP32 link",s:["reserved, Bluetooth bridge"],dash:1,g:[]},
  {id:"DS1",x:860,y:63,w:180,h:64,t:"HT16K33 display 1",s:["0x70"],r:"p3",g:["I2C displays"]},
  {id:"DS2",x:1066,y:63,w:160,h:64,t:"Display 2",s:["0x71"],r:"p3",g:["I2C displays"]},
@@ -895,9 +873,9 @@ var SBLK = [
  {id:"AMP",x:1066,y:658,w:160,h:64,t:"PAM8403",s:["8 Ω speaker"],r:"p5",g:["Audio"]}
 ];
 var SEDGE = [
- {x1:260,x2:470,y:120,k:"p3",a:"3V3 pin, GND",b:"one source only",pl:"3V3",g:["Bench power"]},
+ {x1:260,x2:470,y:120,k:"p5",a:"USB cable",b:"power, later data",pl:"USB",g:["USB power"]},
  {x1:260,x2:470,y:260,k:"dbg",a:"SWDIO, SWCLK, GND",b:"SWD",pl:"PA13 PA14",g:["MCU core"]},
- {x1:260,x2:470,y:425,k:"rsv",a:"replaces bench supply",b:"",pl:"",dash:1,g:["Battery power"]},
+ {x1:260,x2:470,y:425,k:"p5",a:"5V pin to F1",b:"VBUS",pl:"5V",g:["USB power"]},
  {x1:260,x2:470,y:620,k:"rsv",a:"USART2",b:"3.3 V logic, no shifter",pl:"PA2 PA3",dash:1,g:[]},
  {x1:690,x2:860,y:95,k:"i2c",a:"I2C1, 100 kHz",b:"SCL, SDA",pr:"PB6 PB7",g:["I2C displays"]},
  {x1:1040,x2:1066,y:95,k:"i2c",g:["I2C displays"]},

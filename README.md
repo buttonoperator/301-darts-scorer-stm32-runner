@@ -1,6 +1,6 @@
 # 301 Darts Scorer: STM32 Build Runner
 
-An interactive, single-file bring-up guide for a breadboard darts scorer: an STM32F103C8T6
+An interactive, single-file bring-up guide for a USB-powered breadboard darts scorer: an STM32F103C8T6
 Blue Pill, two HT16K33 seven-segment backpacks on I2C, an LCD1602 behind a 74HCT541 buffer,
 a 4x4 keypad with LED lighting, an RGB status LED, a passive buzzer, and PWM audio through a
 PAM8403 amplifier. It scores 301 or 501 for one to four players.
@@ -14,7 +14,7 @@ directly to use it at the bench without a network.
 
 ## What the page does
 
-- Walks 30 steps in ten stages, one subsystem at a time. Each stage ends in a measured pass
+- Walks 28 steps in nine stages, one subsystem at a time. Each stage ends in a measured pass
   criterion before the next subsystem is connected.
 - Lights the pins for the current step on a pin map of every part. Selecting a pin traces
   its net across all parts.
@@ -25,27 +25,38 @@ directly to use it at the bench without a network.
 
 | Stage | Subsystem | Pass criterion |
 |---|---|---|
-| 1 | Bench or USB power | 4.75 to 5.25 V and 3.14 to 3.47 V |
+| 1 | USB power | 4.75 to 5.25 V and 3.14 to 3.47 V |
 | 2 | MCU core | PC13 blinks at 1 Hz, breakpoint halts |
-| 3 | I2C displays | Scan finds 0x70 and 0x71, all segments light |
+| 3 | I2C displays | Scan finds 0x70 and 0x71, all segments light, display current recorded |
 | 4 | LCD | Stable text across power cycles |
 | 5 | Keypad and lighting | 16 of 16 keys, one event per press |
 | 6 | Buttons and pot | Active-low read, ADC sweeps 0 to 4095 |
 | 7 | Status | Three LED colors, three buzzer tones |
 | 8 | Audio | Clean tone, 5 V rail at or above 4.75 V |
-| 9 | Battery power | Deferred. Three checkpoints before any load |
-| 10 | Integration | Both rails in tolerance under full load |
+| 9 | Integration | Both rails in tolerance under full load, current below the USB source rating |
 
 ## Status
 
 | Item | State |
 |---|---|
 | MCU core (flash, blink, SWD debug) | Verified on hardware, 2026-10-11 |
+| LCD backlight | Verified on hardware, 2026-11-14. Onboard 101 ohm resistor, about 22 mA |
 | All other stages | Not yet verified |
 | Firmware in `firmware/` | Syntax-checked on a host compiler against a stub HAL header. Not yet built with ARM GCC or run on hardware, except the blink and I2C scan logic |
-| Blue Pill header order, keypad connector order | Not confirmed against the parts in hand |
+| Blue Pill header order, keypad connector order, AMS1117 module pin order | Not confirmed against the parts in hand |
 
 The page lists the remaining open items in its last drawer.
+
+## Power
+
+The design is USB powered through the Blue Pill connector (decision of 2026-11-14). The earlier
+4xAA battery chain is removed.
+
+- 5 V rail: Blue Pill 5V pin (VBUS) through F1, a 1 A resettable fuse.
+- 3.3 V rail: AMS1117-3.3 module fed from the 5 V rail. It supplies the displays.
+- The regulator on the Blue Pill supplies the MCU. The Blue Pill 3V3 pin feeds the brightness
+  pot only and is never joined to the 3.3 V rail.
+- Use a USB source rated 1 A or more.
 
 ## Repository layout
 

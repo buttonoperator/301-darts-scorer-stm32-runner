@@ -41,7 +41,6 @@
 
 /* ADC channels */
 #define ADC_CH_POT      ADC_CHANNEL_0   /* PA0, brightness pot */
-#define ADC_CH_VBAT     ADC_CHANNEL_1   /* PA1, battery sense, deferred */
 
 /* HT16K33 7-bit I2C addresses */
 #define DISP1_ADDR      0x70U
@@ -51,7 +50,7 @@
 extern I2C_HandleTypeDef hi2c1;   /* PB6 SCL, PB7 SDA, 100 kHz */
 extern TIM_HandleTypeDef htim3;   /* CH1 on PA6, buzzer */
 extern TIM_HandleTypeDef htim4;   /* CH3 on PB8, speaker PWM */
-extern ADC_HandleTypeDef hadc1;   /* IN0, IN1 */
+extern ADC_HandleTypeDef hadc1;   /* IN0 */
 
 /* Busy-wait delay. Guaranteed minimum at 72 MHz, not a precise interval. */
 void Board_DelayUs(uint32_t us);
