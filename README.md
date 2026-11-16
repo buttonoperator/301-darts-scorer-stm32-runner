@@ -43,7 +43,8 @@ directly to use it at the bench without a network.
 | LCD backlight | Verified on hardware, 2026-11-14. Onboard 101 ohm resistor, about 22 mA |
 | All other stages | Not yet verified |
 | Firmware in `firmware/` | Syntax-checked on a host compiler against a stub HAL header. Not yet built with ARM GCC or run on hardware, except the blink and I2C scan logic |
-| Blue Pill header order, keypad connector order, AMS1117 module pin order | Not confirmed against the parts in hand |
+| Blue Pill header order, AMS1117 module pin order | Read from the silkscreen, 2026-11-14 |
+| Keypad connector order | Generic convention assumed. Not confirmed against the part in hand |
 
 The page lists the remaining open items in its last drawer.
 

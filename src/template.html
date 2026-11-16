@@ -514,16 +514,15 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
         <tbody>
           <tr><td>MCU and programming</td><td>Blue Pill (STM32F103C8T6), ST-Link V2</td><td class="m">3.3 V</td></tr>
           <tr><td>Score displays</td><td>2&times; Adafruit 1.2 in 4-digit 7-segment, HT16K33 I2C backpack</td><td class="m">3.3 V</td></tr>
-          <tr><td>Text display</td><td>LCD1602, 74HCT541 (DIP-20), 10 k&Omega; contrast pot</td><td class="m">5 V</td></tr>
+          <tr><td>Text display</td><td>LCD1602, 74HCT541 (DIP-20) with C3 0.1 &micro;F at pin 20, RV2 Bourns 3310R-125-103L 10 k&Omega; contrast pot</td><td class="m">5 V</td></tr>
           <tr><td>Input</td><td>4&times;4 matrix keypad, 2 tactile buttons, 10 k&Omega; linear pot</td><td class="m">3.3 V</td></tr>
           <tr><td>Keypad lighting</td><td>4 white LEDs (D2 to D5), 4 &times; 220 &Omega; (R7 to R10)</td><td class="m">5 V</td></tr>
           <tr><td>Status</td><td>RGB LED, common cathode, 3 resistors. Passive piezo buzzer.</td><td class="m">3.3 V</td></tr>
-          <tr><td>Audio</td><td>PAM8403 module, 8 &Omega; speaker, 1 k&Omega;, 0.1 &micro;F, coupling capacitor, 2&times; 10 k&Omega;</td><td class="m">5 V</td></tr>
+          <tr><td>Audio</td><td>PAM8403 module, 8 &Omega; speaker, R4 1 k&Omega;, C1 0.1 &micro;F (KEMET C320C104K5R5TA), C2 1 &micro;F (KEMET C330C105K5R5TA), R5 and R6 10 k&Omega;</td><td class="m">5 V</td></tr>
           <tr><td>USB power</td><td>USB source rated 1 A or more, F1 1 A resettable fuse, AMS1117-3.3 module (3-pin header)</td><td class="m">both</td></tr>
         </tbody>
       </table></div>
-      <p>Prices and order status are in Purchase Order v5.1. The 1 A resettable fuse is not on that order. Designators on this page (R1 to R10, C1, C2,
-      D1 to D5, RV1, RV2, SW1, SW2) are local to this page until a schematic exists.</p>
+      <p>Prices and order status are in Purchase Order v5.1. The 1 A resettable fuse is not on that order. Designators on this page follow Altium BOM v8. C1, C2, C3 and F1 are selected but not yet purchased.</p>
     </div>
   </details>
 
@@ -584,10 +583,11 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
         <thead><tr><th>Item</th><th>Detail</th></tr></thead>
         <tbody>
           <tr><td>I2C scan result</td><td>The scan for 0x70 was in debug at the last recorded session (2026-10-11). No pass is on record.</td></tr>
-          <tr><td>Blue Pill header order</td><td>The pin map drawing uses the common Blue Pill header order. Confirm it against the silkscreen on the board in hand.</td></tr>
-          <tr><td>Keypad connector order</td><td>Row and column lead positions are not confirmed. Map them with a continuity meter.</td></tr>
-          <tr><td>Display current and feed</td><td>Estimated at about 200 mA per display at full segments from the 3.3 V rail. Unmeasured. If the backpack has a separate IO logic pin beside its + pin, feeding + from the 5 V rail roughly halves the current. Read the silkscreen and measure before deciding.</td></tr>
-          <tr><td>AMS1117 module pin order</td><td>The module has a 3-pin header. The order of IN, GND and OUT is not confirmed. Read the silkscreen.</td></tr>
+          <tr><td>Blue Pill header order</td><td>Resolved 2026-11-14. Read from the silkscreen; the pin map drawing now matches it.</td></tr>
+          <tr><td>Keypad connector order</td><td>Generic convention assumed (pins 1 to 4 rows, 5 to 8 columns). Not confirmed on the keypad in hand. A different order is a firmware change only.</td></tr>
+          <tr><td>Display current and feed</td><td>Estimated at about 200 mA per display at full segments from the 3.3 V rail. Unmeasured. The backpack has a separate VIO logic pin, which stays on 3.3 V. VIN can move to the 5 V rail to roughly halve the 3.3 V load. The carrier board selects this with jumper JP1. Measure before deciding.</td></tr>
+          <tr><td>AMS1117 module pin order</td><td>Resolved 2026-11-14: VIN, OUT, GND left to right, component side facing, pins down.</td></tr>
+          <tr><td>Carrier board attach</td><td>On the carrier board the two displays and the PAM8403 attach by wire leads, and the speaker wires straight to the PAM8403 outputs (Altium BOM v8). Breadboard wiring is unchanged.</td></tr>
           <tr><td>Fuse F1</td><td>1 A resettable fuse. Not yet in hand. A wire link stands in until it is fitted, before the integration stage.</td></tr>
           <tr><td>Firmware</td><td>The drivers on this page are not yet built with ARM GCC or run on hardware. Each is verified when its step passes.</td></tr>
           <tr><td>Keypad lighting control</td><td>The LEDs are always on. Firmware control needs a pin, and none is free on the side headers. PC13 through a 10 k&Omega; base resistor and an NPN low-side switch is a candidate. It is not designed in.</td></tr>
@@ -619,7 +619,7 @@ var STEPS = [
   y:"The regulator on the Blue Pill is rated 150 to 300 mA depending on the board, which is too small for both displays. The AMS1117 carries the display load and the onboard regulator carries the MCU.",
   W:[["Blue Pill 5V pin (VBUS)","F1 pin 1"],["F1 pin 2","5 V rail"],["Blue Pill GND","GND rail, both sides"],["AMS1117 IN","5 V rail"],["AMS1117 GND","GND rail"],["AMS1117 OUT","3.3 V rail"]],
   P:["BP.5V","BP.GNDa","PWR.*"],
-  fk:"Watch", fw:1, f:"Two regulator outputs are never joined. Keep the Blue Pill 3V3 pin off the 3.3 V rail. Read the pin order on the AMS1117 module silkscreen before wiring. If F1 is not in hand, fit a wire link and add the fuse before the integration stage."},
+  fk:"Watch", fw:1, f:"Two regulator outputs are never joined. Keep the Blue Pill 3V3 pin off the 3.3 V rail. AMS1117 module pin order is VIN, OUT, GND left to right, component side facing, pins down. If F1 is not in hand, fit a wire link and add the fuse before the integration stage."},
  /* 2 */ {g:"USB power", t:"Measure both rails", w:"Meter on DC volts",
   d:"Plug in USB with only the regulator connected. Measure the 5 V rail and the 3.3 V rail against the GND rail. Confirm the BOOT0 and BOOT1 jumpers are both at 0.",
   P:["PWR.F1.2","PWR.OUT","BP.GNDa"],
@@ -645,9 +645,9 @@ var STEPS = [
   y:"Both backpacks ship at 0x70. With A0 bridged, display 2 answers at 0x71 and the two share one bus.",
   P:["DS2.*"],
   fk:"Check", f:"Unpowered, meter on continuity across the A0 pads of display 2 reads closed. A1 and A2 read open."},
- /* 7 */ {g:"I2C displays", t:"Wire display 1", w:"4 wires, 3.3 V rail",
+ /* 7 */ {g:"I2C displays", t:"Wire display 1", w:"5 wires, 3.3 V rail",
   d:"The backpack runs from 3.3 V. Its I2C pull-ups are on the board, so add none.",
-  W:[["DS1 VIN","3.3 V rail"],["DS1 GND","GND rail"],["DS1 SDA","Blue Pill PB7"],["DS1 SCL","Blue Pill PB6"]],
+  W:[["DS1 VIN","3.3 V rail"],["DS1 VIO","3.3 V rail"],["DS1 GND","GND rail"],["DS1 SDA","Blue Pill PB7"],["DS1 SCL","Blue Pill PB6"]],
   P:["DS1.*","BP.PB6","BP.PB7"],
   fk:"Note", f:"Pin labels differ between backpack revisions. Match the function to the silkscreen, and see the HT16K33 wiring doc for the revision caveat."},
  /* 8 */ {g:"I2C displays", t:"Enable I2C1 and scan the bus", c:["steps/i2c_scan.c"], w:"CubeMX, then debugger",
@@ -657,7 +657,7 @@ var STEPS = [
   fk:"Check", f:"The found list holds exactly one address, 0x70."},
  /* 9 */ {g:"I2C displays", t:"Add display 2 to the same bus", c:["steps/i2c_scan.c"], w:"4 wires",
   d:"Display 2 shares SDA and SCL with display 1. Power down first.",
-  W:[["DS2 VIN","3.3 V rail"],["DS2 GND","GND rail"],["DS2 SDA","PB7 node"],["DS2 SCL","PB6 node"]],
+  W:[["DS2 VIN","3.3 V rail"],["DS2 VIO","3.3 V rail"],["DS2 GND","GND rail"],["DS2 SDA","PB7 node"],["DS2 SCL","PB6 node"]],
   P:["DS2.*","BP.PB6","BP.PB7"],
   fk:"Check", f:"Rerun the scan. The found list holds 0x70 and 0x71."},
  /* 10 */ {g:"I2C displays", t:"Full-segment test on both displays", c:["steps/display_test.c", "ht16k33.h", "ht16k33.c", "board.h"], w:"Firmware",
@@ -687,7 +687,7 @@ var STEPS = [
   fk:"Watch", fw:1, f:"Input A1 is pin 2 and its output Y1 is pin 18. The pairs run in opposite directions down the two sides."},
  /* 15 */ {g:"LCD", t:"LCD power, contrast and backlight", w:"7 connections",
   d:"VDD is the true 5 V rail. RW goes straight to ground and does not pass through the buffer. D0 to D3 stay open in 4-bit mode. The module carries its own 101 Ω backlight resistor, so pin 15 goes straight to the 5 V rail. Measured 2026-11-14: 2.25 V across that resistor, about 22 mA.",
-  W:[["LCD pin 1 (VSS)","GND rail"],["LCD pin 2 (VDD)","5 V rail"],["LCD pin 3 (V0)","RV2 wiper"],["RV2 ends","5 V rail and GND rail"],["LCD pin 5 (RW)","GND rail"],["LCD pin 15 (A)","5 V rail"],["LCD pin 16 (K)","GND rail"]],
+  W:[["LCD pin 1 (VSS)","GND rail"],["LCD pin 2 (VDD)","5 V rail"],["LCD pin 3 (V0)","RV2 wiper"],["RV2 pin 1","GND rail"],["RV2 pin 3","5 V rail"],["LCD pin 5 (RW)","GND rail"],["LCD pin 15 (A)","5 V rail"],["LCD pin 16 (K)","GND rail"]],
   P:["LCD.1","LCD.2","LCD.3","LCD.5","LCD.15","LCD.16","RV2.*"],
   fk:"Check", f:"Power up with no LCD firmware. Turn RV2 until row 1 shows 16 solid blocks. A blank screen at this point is a contrast or power fault, not a data fault. Reversing pins 1 and 2 can destroy the controller, so check polarity before power."},
  /* 16 */ {g:"LCD", t:"Initialize in 4-bit mode and print", c:["steps/lcd_test.c", "lcd1602.h", "lcd1602.c", "board.h", "board.c"], w:"Firmware",
@@ -735,7 +735,7 @@ var STEPS = [
   fk:"Check", f:"Three distinct tones play, one each for score, bust and checkout."},
 
  /* 24 */ {g:"Audio", t:"Build the RC low-pass filter", w:"R4 and C1",
-  d:"PB8 drives R4, 1 kΩ. The far end of R4 is the filtered node. C1, 0.1 µF ceramic, runs from that node to ground.",
+  d:"PB8 drives R4, 1 kΩ. The far end of R4 is the filtered node. C1, 0.1 µF ceramic (KEMET C320C104K5R5TA), runs from that node to ground.",
   y:"The timer output is a PWM carrier. The filter removes the carrier and leaves the audio. The corner frequency is about 1.6 kHz with these values and is tuned by ear.",
   W:[["Blue Pill PB8","R4 pin 1"],["R4 pin 2","C1 pin 1 (filtered node)"],["C1 pin 2","GND rail"]],
   P:["BP.PB8","FLT.R4.1","FLT.R4.2","FLT.C1.1","FLT.C1.2"]},
@@ -743,7 +743,7 @@ var STEPS = [
   d:"C2 blocks DC from the filtered node. R5 and R6, 10 kΩ each, split the mono signal to the L and R inputs. The speaker connects across L+ and L−.",
   W:[["Filtered node","C2 pin 1"],["C2 pin 2","R5 pin 1 and R6 pin 1"],["R5 pin 2","PAM8403 L"],["R6 pin 2","PAM8403 R"],["PAM8403 input G","GND rail"],["PAM8403 5V and GND","5 V rail and GND rail"],["PAM8403 L+ and L−","Speaker"]],
   P:["FLT.C2.1","FLT.C2.2","FLT.R5.1","FLT.R5.2","FLT.R6.1","FLT.R6.2","AMP.*"],
-  fk:"Watch", fw:1, f:"The outputs are bridge-tied. Neither speaker terminal connects to ground. C2 must be 0.1 to 1 µF. A capacitor marked 102 is far too small."},
+  fk:"Watch", fw:1, f:"The outputs are bridge-tied. Neither speaker terminal connects to ground. C2 is 1 µF ceramic (KEMET C330C105K5R5TA), which puts the high-pass corner near 16 Hz into the 10 kΩ split. A capacitor marked 102 is far too small."},
  /* 26 */ {g:"Audio", t:"Play a tone and measure the 5 V rail", c:["steps/audio_test.c", "audio.h", "audio.c"], w:"Firmware, meter on the 5 V rail",
   d:"Enable TIM4 channel 3 as PWM with prescaler 0, and enable the TIM4 global interrupt. The driver runs a 64 kHz carrier and updates the duty at 16 kHz from a sine table. Start at volume 16 and raise it in steps while watching the 5 V rail. Set AUDIO_VOL_MAX below the level where the speaker distorts.",
   P:["BP.PB8","AMP.5V","AMP.L+","AMP.L−"],
@@ -759,20 +759,17 @@ var STEPS = [
 var PK = {
  BP:{ref:"Blue Pill", part:"STM32F103C8T6", kind:"dual", pw:54, top:"USB", foot:[
       ["SWDIO","PA13","SWDIO","dbg","SWDIO"],["SWCLK","PA14","SWCLK","dbg","SWCLK"],["GND","","GND","gnd","SWGND"],["3V3","","open","nc","SW3V3"]],
-     note:"Drawn with the USB connector at the top, components facing up. Header order is the common Blue Pill layout. Confirm against the silkscreen.",
-     L:[["PB12","GPIO out","LCD_D4","lcd"],["PB13","GPIO out","LCD_D5","lcd"],["PB14","GPIO out","LCD_D6","lcd"],["PB15","GPIO out","LCD_D7","lcd"],
-        ["PA8","GPIO out","LED_R","stat"],["PA9","GPIO out","LED_G","stat"],["PA10","GPIO out","LED_B","stat"],
-        ["PA11","USB D−","reserved","rsv"],["PA12","USB D+","reserved","rsv"],
-        ["PA15","GPIO out","KEY_R4","key"],["PB3","in, PU","KEY_C3","key"],["PB4","in, PU","KEY_C4","key"],
-        ["PB5","in, PU","BTN_UNDO","inp"],["PB6","I2C1_SCL","I2C_SCL","i2c"],["PB7","I2C1_SDA","I2C_SDA","i2c"],
-        ["PB8","TIM4_CH3","AUD_PWM","aud"],["PB9","in, PU","BTN_NEW","inp"],
-        ["5V","VBUS","VBUS","p5"],["GND","","GND","gnd","GNDa"],["3V3","","BP_3V3","p3","3V3a"]],
-     R:[["GND","","GND","gnd","GNDb"],["GND","","GND","gnd","GNDc"],["3V3","","BP_3V3","p3","3V3b"],["NRST","","open","nc"],
-        ["PB11","GPIO out","LCD_E","lcd"],["PB10","GPIO out","LCD_RS","lcd"],["PB1","in, PU","KEY_C2","key"],["PB0","in, PU","KEY_C1","key"],
-        ["PA7","GPIO out","KEY_R3","key"],["PA6","TIM3_CH1","BUZZ","stat"],["PA5","GPIO out","KEY_R2","key"],["PA4","GPIO out","KEY_R1","key"],
-        ["PA3","USART2_RX","reserved","rsv"],["PA2","USART2_TX","reserved","rsv"],
-        ["PA1","","spare","nc"],["PA0","ADC1_IN0","POT_BRT","inp"],
-        ["PC15","","open","nc"],["PC14","","open","nc"],["PC13","GPIO out","LED","dbg"],["VBAT","","open","nc"]]},
+     note:"Drawn with the USB connector at the top, components facing up. Header order read from the silkscreen of the board in hand, 2026-11-14 (measurement sheet rows 4 and 5).",
+     L:[["VBAT","","open","nc"], ["PC13","GPIO out","LED","dbg"], ["PC14","","open","nc"], ["PC15","","open","nc"],
+        ["PA0","ADC1_IN0","POT_BRT","inp"], ["PA1","","spare","nc"], ["PA2","USART2_TX","reserved","rsv"], ["PA3","USART2_RX","reserved","rsv"],
+        ["PA4","GPIO out","KEY_R1","key"], ["PA5","GPIO out","KEY_R2","key"], ["PA6","TIM3_CH1","BUZZ","stat"], ["PA7","GPIO out","KEY_R3","key"],
+        ["PB0","in, PU","KEY_C1","key"], ["PB1","in, PU","KEY_C2","key"], ["PB10","GPIO out","LCD_RS","lcd"], ["PB11","GPIO out","LCD_E","lcd"],
+        ["NRST","","open","nc"], ["3V3","","BP_3V3","p3","3V3b"], ["GND","","GND","gnd","GNDc"], ["GND","","GND","gnd","GNDb"]],
+     R:[["3V3","","BP_3V3","p3","3V3a"], ["GND","","GND","gnd","GNDa"], ["5V","VBUS","VBUS","p5"], ["PB9","in, PU","BTN_NEW","inp"],
+        ["PB8","TIM4_CH3","AUD_PWM","aud"], ["PB7","I2C1_SDA","I2C_SDA","i2c"], ["PB6","I2C1_SCL","I2C_SCL","i2c"], ["PB5","in, PU","BTN_UNDO","inp"],
+        ["PB4","in, PU","KEY_C4","key"], ["PB3","in, PU","KEY_C3","key"], ["PA15","GPIO out","KEY_R4","key"], ["PA12","USB D+","reserved","rsv"],
+        ["PA11","USB D−","reserved","rsv"], ["PA10","GPIO out","LED_B","stat"], ["PA9","GPIO out","LED_G","stat"], ["PA8","GPIO out","LED_R","stat"],
+        ["PB15","GPIO out","LCD_D7","lcd"], ["PB14","GPIO out","LCD_D6","lcd"], ["PB13","GPIO out","LCD_D5","lcd"], ["PB12","GPIO out","LCD_D4","lcd"]]},
  U2:{ref:"U2", part:"74HCT541, DIP-20", kind:"dual", pw:34, top:"notch",
      note:"Top view, notch up. Inputs on the left, outputs on the right in reverse order.",
      L:[["1","OE1","GND","gnd"],["2","A1","LCD_RS","lcd"],["3","A2","LCD_E","lcd"],["4","A3","LCD_D4","lcd"],["5","A4","LCD_D5","lcd"],
@@ -784,13 +781,13 @@ var PK = {
         ["7","D0","open","nc"],["8","D1","open","nc"],["9","D2","open","nc"],["10","D3","open","nc"],
         ["11","D4","D4_5V","lcd"],["12","D5","D5_5V","lcd"],["13","D6","D6_5V","lcd"],["14","D7","D7_5V","lcd"],
         ["15","A","+5V","p5"],["16","K","GND","gnd"]]},
- DS1:{ref:"DS1", part:"HT16K33 backpack, 0x70", kind:"row",
-     P:[["VIN","power","+3V3","p3"],["GND","ground","GND","gnd"],["SDA","data","I2C_SDA","i2c"],["SCL","clock","I2C_SCL","i2c"]]},
- DS2:{ref:"DS2", part:"HT16K33 backpack, 0x71", kind:"row", note:"A0 jumper bridged.",
-     P:[["VIN","power","+3V3","p3"],["GND","ground","GND","gnd"],["SDA","data","I2C_SDA","i2c"],["SCL","clock","I2C_SCL","i2c"]]},
- RV2:{ref:"RV2", part:"LCD contrast pot", kind:"row",
-     P:[["1","end","+5V","p5"],["W","wiper","LCD_V0","lcd"],["3","end","GND","gnd"]]},
- KP:{ref:"KP", part:"4×4 matrix keypad", kind:"row", note:"Lead order on the connector is not confirmed. Map it with a continuity meter.",
+ DS1:{ref:"DS1", part:"HT16K33 backpack, 0x70", kind:"row", note:"Silkscreen order SCL, SDA, GND, VIN, VIO. VIO is the logic supply and stays on 3.3 V.",
+     P:[["SCL","clock","I2C_SCL","i2c"],["SDA","data","I2C_SDA","i2c"],["GND","ground","GND","gnd"],["VIN","LED supply","+3V3","p3"],["VIO","logic supply","+3V3","p3"]]},
+ DS2:{ref:"DS2", part:"HT16K33 backpack, 0x71", kind:"row", note:"A0 jumper bridged. Pin order as DS1.",
+     P:[["SCL","clock","I2C_SCL","i2c"],["SDA","data","I2C_SDA","i2c"],["GND","ground","GND","gnd"],["VIN","LED supply","+3V3","p3"],["VIO","logic supply","+3V3","p3"]]},
+ RV2:{ref:"RV2", part:"Bourns 3310R-125-103L, 10 kΩ", kind:"row", note:"Three pins in line, 2.54 mm. Bushingless board-level control, 5.59 mm flatted shaft.",
+     P:[["1","end","GND","gnd"],["2","wiper","LCD_V0","lcd"],["3","end","+5V","p5"]]},
+ KP:{ref:"KP", part:"4×4 matrix keypad", kind:"row", note:"Generic 4x4 membrane convention: tail pins 1 to 4 are R1 to R4, 5 to 8 are C1 to C4. Not confirmed on this keypad. All eight lines are GPIO, so a different order is fixed in firmware.",
      P:[["R1","row 1","KEY_R1","key"],["R2","row 2","KEY_R2","key"],["R3","row 3","KEY_R3","key"],["R4","row 4","KEY_R4","key"],
         ["C1","col 1","KEY_C1","key"],["C2","col 2","KEY_C2","key"],["C3","col 3","KEY_C3","key"],["C4","col 4","KEY_C4","key"]]},
  KL:{ref:"D2 to D5", part:"Keypad lighting, always on", kind:"row", note:"Four identical branches. White LEDs, 220 Ω each.",
@@ -799,21 +796,21 @@ var PK = {
      P:[["SW1.1","Undo","BTN_UNDO","inp"],["SW1.2","Undo","GND","gnd"],["SW2.1","New Game","BTN_NEW","inp"],["SW2.2","New Game","GND","gnd"]]},
  RV1:{ref:"RV1", part:"Brightness pot, 10 kΩ", kind:"row",
      P:[["1","end","BP_3V3","p3"],["W","wiper","POT_BRT","inp"],["3","end","GND","gnd"]]},
- D1:{ref:"D1", part:"RGB LED, common cathode", kind:"row",
+ D1:{ref:"D1", part:"RGB LED, common cathode", kind:"row", note:"Find the cathode (longest lead) first. Anode colour order varies by maker; swap PA8, PA9, PA10 in board.h if colours come out wrong.",
      P:[["R","via R1","LED_R","stat"],["G","via R2","LED_G","stat"],["B","via R3","LED_B","stat"],["K","cathode","GND","gnd"]]},
  BZ1:{ref:"BZ1", part:"Passive piezo buzzer", kind:"row",
      P:[["+","drive","BUZZ","stat"],["−","return","GND","gnd"]]},
  FLT:{ref:"Audio filter", part:"R4, C1, C2, R5, R6", kind:"row",
      P:[["R4.1","1 kΩ","AUD_PWM","aud"],["R4.2","1 kΩ","AUD_FILT","aud"],["C1.1","0.1 µF","AUD_FILT","aud"],["C1.2","0.1 µF","GND","gnd"],
-        ["C2.1","couple","AUD_FILT","aud"],["C2.2","couple","AUD_AC","aud"],["R5.1","10 kΩ","AUD_AC","aud"],["R5.2","10 kΩ","AUD_L","aud"],
+        ["C2.1","1 µF","AUD_FILT","aud"],["C2.2","1 µF","AUD_AC","aud"],["R5.1","10 kΩ","AUD_AC","aud"],["R5.2","10 kΩ","AUD_L","aud"],
         ["R6.1","10 kΩ","AUD_AC","aud"],["R6.2","10 kΩ","AUD_R","aud"]]},
  AMP:{ref:"PAM8403", part:"Class-D amplifier module", kind:"row",
      P:[["5V","supply","+5V","p5"],["GND","supply","GND","gnd"],["L","input","AUD_L","aud"],["G","input gnd","GND","gnd"],["R","input","AUD_R","aud"],
         ["L+","output","SPK+","aud"],["L−","output","SPK−","aud"],["R+","output","open","nc"],["R−","output","open","nc"]]},
  STL:{ref:"ST-Link V2", part:"SWD", kind:"row",
      P:[["SWDIO","data","SWDIO","dbg"],["SWCLK","clock","SWCLK","dbg"],["GND","return","GND","gnd"],["3.3V","output","open","nc"]]},
- PWR:{ref:"USB power", part:"F1, AMS1117-3.3 module", kind:"row", note:"AMS1117 module pin order is not confirmed. Read the silkscreen.",
-     P:[["F1.1","1 A fuse","VBUS","p5"],["F1.2","1 A fuse","+5V","p5"],["IN","AMS1117","+5V","p5"],["GND","AMS1117","GND","gnd"],["OUT","AMS1117","+3V3","p3"]]}
+ PWR:{ref:"USB power", part:"F1, AMS1117-3.3 module", kind:"row", note:"AMS1117 module pins: VIN, OUT, GND left to right, component side facing, pins down (silkscreen, 2026-11-14).",
+     P:[["F1.1","1 A fuse","VBUS","p5"],["F1.2","1 A fuse","+5V","p5"],["VIN","AMS1117 pin 1","+5V","p5"],["OUT","AMS1117 pin 2","+3V3","p3"],["GND","AMS1117 pin 3","GND","gnd"]]}
 };
 var PKORDER = ["BP","PWR","STL","DS1","DS2","U2","LCD","RV2","KP","KL","SW","RV1","D1","BZ1","FLT","AMP"];
 

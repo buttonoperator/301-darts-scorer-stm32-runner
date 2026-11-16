@@ -6,7 +6,7 @@ the 5 V rail.
 
 Verification state: PA13, PA14 and PC13 are verified on hardware. Every other connection is
 unverified until its bring-up step passes. The Blue Pill header order and the keypad
-connector order are not confirmed against the parts in hand.
+Blue Pill header order and AMS1117 pin order were read from the silkscreen on 2026-11-14. The keypad connector order is not confirmed against the part in hand.
 
 ## 1. Power
 
@@ -16,7 +16,7 @@ USB through the Blue Pill connector. Source rated 1 A or more.
 |---|---|---|
 | Blue Pill 5V pin (VBUS) | F1 pin 1 | F1 is a 1 A resettable fuse |
 | F1 pin 2 | 5 V rail | |
-| 5 V rail | AMS1117-3.3 module IN | Module has a 3-pin header. Pin order not confirmed |
+| 5 V rail | AMS1117-3.3 module VIN | Pins VIN, OUT, GND left to right, component side facing, pins down |
 | AMS1117 OUT | 3.3 V rail | |
 | Blue Pill GND, AMS1117 GND | GND rail | All grounds common |
 | Blue Pill 3V3 pin | RV1 only | Never joined to the 3.3 V rail |
@@ -84,7 +84,8 @@ at 0x71 with the A0 jumper bridged. Pull-ups are on the backpacks.
 
 | Backpack pin | Connects to |
 |---|---|
-| VIN | 3.3 V rail |
+| VIN | 3.3 V rail (LED supply; may move to 5 V after the current measurement) |
+| VIO | 3.3 V rail (logic supply, always 3.3 V) |
 | GND | GND rail |
 | SDA | PB7 |
 | SCL | PB6 |
@@ -102,11 +103,11 @@ at 0x71 with the A0 jumper bridged. Pull-ups are on the backpacks.
 
 | Part | Pin | Connects to |
 |---|---|---|
-| 74HCT541 | 20 (VCC) | 5 V rail |
+| 74HCT541 | 20 (VCC) | 5 V rail. C3 (0.1 uF) from pin 20 to GND at the pin |
 | 74HCT541 | 10 (GND), 1 (OE1), 19 (OE2), 8 (A7), 9 (A8) | GND rail |
 | LCD | 1 (VSS), 5 (RW), 16 (K) | GND rail |
 | LCD | 2 (VDD) | 5 V rail |
-| LCD | 3 (V0) | RV2 wiper. RV2 ends to 5 V and GND |
+| LCD | 3 (V0) | RV2 pin 2 (wiper). RV2 pin 1 to GND, pin 3 to 5 V. RV2 is a Bourns 3310R-125-103L |
 | LCD | 7 to 10 (D0 to D3) | Open |
 | LCD | 15 (A) | 5 V rail. The module has a 101 ohm backlight resistor onboard (measured 2026-11-14, about 22 mA) |
 
@@ -116,8 +117,10 @@ The buffer must be the HCT family. A 74HC541 at 5 V does not read 3.3 V as a gua
 
 | Keypad lead | MCU pin |
 |---|---|
-| R1, R2, R3, R4 | PA4, PA5, PA7, PA15 |
-| C1, C2, C3, C4 | PB0, PB1, PB3, PB4 |
+| R1, R2, R3, R4 (tail pins 1 to 4, generic convention) | PA4, PA5, PA7, PA15 |
+| C1, C2, C3, C4 (tail pins 5 to 8, generic convention) | PB0, PB1, PB3, PB4 |
+
+The tail order is not confirmed on the keypad in hand. All eight lines are GPIO, so a different order is a firmware change.
 
 Lighting: four LEDs (D2 to D5), each with its own series resistor (R7 to R10) from the 5 V
 rail to the anode, cathode to GND. Always on. White LEDs with 220 ohm, about 8 to 9 mA per LED.
@@ -137,8 +140,8 @@ rail to the anode, cathode to GND. Always on. White LEDs with 220 ohm, about 8 t
 | From | To |
 |---|---|
 | PB8 | R4 (1 kohm) pin 1 |
-| R4 pin 2 | Filtered node. C1 (0.1 uF) from this node to GND |
-| Filtered node | C2 (0.1 to 1 uF coupling) pin 1 |
+| R4 pin 2 | Filtered node. C1 (0.1 uF, KEMET C320C104K5R5TA) from this node to GND |
+| Filtered node | C2 (1 uF, KEMET C330C105K5R5TA) pin 1 |
 | C2 pin 2 | R5 pin 1 and R6 pin 1 (10 kohm each) |
 | R5 pin 2 | PAM8403 L input |
 | R6 pin 2 | PAM8403 R input |
@@ -157,5 +160,5 @@ The amplifier outputs are bridge-tied. Neither speaker terminal connects to grou
 | GND | GND |
 | 3.3 V | Open. USB powers the board |
 
-Designators (R1 to R10, C1, C2, D1 to D5, F1, RV1, RV2, SW1, SW2, BZ1) are local to this sheet
-until a schematic exists.
+Designators follow Altium BOM v8. On the carrier board the two displays and the PAM8403 attach by
+wire leads, and the speaker wires straight to the PAM8403 L+ and L- outputs.
