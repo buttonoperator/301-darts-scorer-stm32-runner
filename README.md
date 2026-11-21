@@ -5,7 +5,7 @@ an STM32F103C8T6 Blue Pill, two HT16K33 seven-segment backpacks and two PCF8574 
 bus, two chains of eight MAX7219 8x8 matrices for Cricket marks behind a 74HCT541 buffer, a 4x4
 keypad with LED lighting, an RGB status LED, a passive buzzer, and PWM audio through a PAM8403
 amplifier with a switched 3.5 mm line output. It scores 301, 501 or Cricket for one to four players.
-Matches project brief v4.6.
+Matches project brief v4.8.
 
 ### ▶ [Open the build runner](https://buttonoperator.github.io/301-darts-scorer-stm32-runner/)
 

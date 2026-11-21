@@ -1,6 +1,6 @@
 # 301 Darts Scorer: Wiring Sheet
 
-STM32F103C8T6 Blue Pill breadboard prototype. Project brief v4.6, pin map v2, 2026-11-20.
+STM32F103C8T6 Blue Pill breadboard prototype. Project brief v4.8, pin map v2, 2026-11-20.
 Logic is 3.3 V at the MCU. The I2C bus runs at 5 V logic. The MAX7219 lines pass through a
 74HCT541 to reach 5 V levels. Power is a 5 V regulated adapter on a barrel jack.
 
