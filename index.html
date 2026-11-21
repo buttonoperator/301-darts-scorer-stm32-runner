@@ -557,10 +557,10 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
           <tr><td>Input</td><td>4&times;4 matrix keypad, 2 tactile buttons, 10 k&Omega; linear pot</td><td class="m">3.3 V</td></tr>
           <tr><td>Keypad lighting</td><td>4 white LEDs (D2 to D5), 4 &times; 220 &Omega; (R7 to R10)</td><td class="m">5 V</td></tr>
           <tr><td>Status</td><td>RGB LED, common cathode, 3 resistors. Passive piezo buzzer.</td><td class="m">3.3 V</td></tr>
-          <tr><td>Audio</td><td>PAM8403 module, 8 &Omega; speaker, R4 1 k&Omega;, C1 0.1 &micro;F (KEMET C320C104K5R5TA), C2 1 &micro;F (KEMET C330C105K5R5TA), R5 and R6 10 k&Omega;, R12 47 k&Omega;, J5 switched 3.5 mm jack (CUI SJ1-3523N class)</td><td class="m">5 V</td></tr>
+          <tr><td>Audio</td><td>PAM8403 module, 8 &Omega; speaker, R4 1 k&Omega;, C1 0.1 &micro;F (KEMET C320C104K5R5TA), C2 1 &micro;F (KEMET C330C105K5R5TA), R5 and R6 10 k&Omega;, R12 47 k&Omega;, J5 switched 3.5 mm jack (CUI SJ1-3524N, tip switch)</td><td class="m">5 V</td></tr>
         </tbody>
       </table></div>
-      <p>Designators follow Altium BOM v10. Retired from v4.5: the parallel LCD1602, RV2 contrast pot,
+      <p>Designators follow Altium BOM v11. Retired from v4.5: the parallel LCD1602, RV2 contrast pot,
       R11 link and the 1.1 A MF-R110 fuse selection. The 1N5819 diodes from Purchase Order v5.1 are now used as D6.</p>
     </div>
   </details>
@@ -642,7 +642,7 @@ footer button{font:500 12px var(--mono);padding:6px 11px}
           <tr><td>Audio source</td><td>PWM from internal flash, or a DFPlayer Mini on USART3 (PB10, PB11). Open.</td></tr>
           <tr><td>Keypad connector order</td><td>Generic convention assumed (pins 1 to 4 rows, 5 to 8 columns). Not confirmed on the keypad in hand. A different order is a firmware change only.</td></tr>
           <tr><td>Cricket keypad mapping</td><td>Single, Double, Triple entry, next player and undo are drafted in the 2026-11-20 sketch, not locked.</td></tr>
-          <tr><td>Carrier board</td><td>Altium BOM v10 covers the new parts. Footprint library v10 is stale against brief v4.6. PCB work starts after integration passes.</td></tr>
+          <tr><td>Carrier board</td><td>Altium BOM v11 covers the new parts. Footprint library v10 is stale against brief v4.6. PCB work starts after integration passes.</td></tr>
           <tr><td>Firmware</td><td>The drivers on this page are not yet built with ARM GCC or run on hardware. Each is verified when its step passes.</td></tr>
           <tr><td>Computer opponent</td><td>Difficulty design is not scoped. It does not block hardware bring-up.</td></tr>
         </tbody>

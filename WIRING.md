@@ -174,7 +174,7 @@ rail to the anode, cathode to GND. Always on. White LEDs with 220 ohm, about 8 t
 | PAM8403 5V, GND | 5 V rail, GND rail |
 | PAM8403 L+, L- | 8 ohm speaker |
 
-J5 is a switched 3.5 mm jack (CUI SJ1-3523N class). Terminal numbers vary by model: identify tip,
+J5 is a switched 3.5 mm jack (CUI SJ1-3524N, tip switch). Terminal numbers vary by model: identify tip,
 ring, sleeve and the tip switch by continuity. The tip switch is closed to the tip with no plug, so
 the signal reaches the amplifier. A plug opens it, which mutes the speaker and leaves the signal on
 the plug. The output is line level, not specified for 32 ohm headphones.
@@ -191,4 +191,4 @@ never connects to the amplifier outputs.
 | GND | GND |
 | 3.3 V | Open. The adapter powers the board |
 
-Designators follow Altium BOM v10.
+Designators follow Altium BOM v11.
